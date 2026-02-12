@@ -1,41 +1,40 @@
 #Pipeline de Extração, Limpeza, Transformação e Enriquecimento de Dados
 
+#Regra de negócio: Carregar apenas registros com quantidade acima de 10.
+
 #Imports
 import csv
 import sqlite3
 
-#Cria novo banco de dados
-conn = sqlite3.connect('producao.db')
-
-#Cria tabela para armazemento dos dados
-conn.execute('''CREATE TABLE producao (
-                produto TEXT,
-                quantidade INTEGER,
-                preco_medio REAL,
-                receita_total REAL
-            )''')
-
-#Grava e fecha a conexão
-conn.commit()
-conn.close()
-
-#Abre o arquivo CSV
-with open('producao_alimentos.csv', 'r') as file:
+#Abre arquivo CSV
+with open ('producao_alimentos.csv', 'r') as file:
 
   #Cria leitor CSV
   reader = csv.reader(file)
 
-  #Ignora primeira linha
+  #Pula primeira linha
   next(reader)
 
-  #Connecta banco de dados
+  #Connecta ao BD
   conn = sqlite3.connect('producao.db')
 
-  #Insere linhas na tabela do banco de dados
+  #Deleta tabela existente, caso exista
+  conn.execute('DROP TABLE IF EXISTS producao')
+
+  #Cria nova tabela
+  conn.execute('''CREATE TABLE producao (
+                  produto TEXT,
+                  quantidade INTEGER,
+                  preco_medio REAL,
+                  receita_total REAL
+              )''')
+  
+  #Insere no BD as linhas com quantidade superior a 10
   for row in reader:
-    conn.execute('INSERT INTO producao (produto, quantidade, preco_medio, receita_total) VALUES (?, ?, ?, ?)', row)
+    if int(row[1]) > 10:
+      conn.execute('INSERT INTO producao (produto, quantidade, preco_medio, receita_total) VALUES (?, ?, ?, ?)', row)
 
   conn.commit()
   conn.close()
 
-print("Operação concluida com sucesso!")
+print("Operação concluída com sucesso!")
