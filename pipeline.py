@@ -1,10 +1,15 @@
 #Pipeline de Extração, Limpeza, Transformação e Enriquecimento de Dados
 
-#Regra de negócio: Carregar apenas registros com quantidade acima de 10.
+#Regra de negócio: Carregar apenas registros com "quantidade" acima de 10.
+#Especificação: Remover caractere "ponto" da coluna "receita total".
 
 #Imports
 import csv
 import sqlite3
+
+#Remove caractere "ponto"
+def remove_ponto(valor):
+  return int(valor.replace('.', ''))
 
 #Abre arquivo CSV
 with open ('producao_alimentos.csv', 'r') as file:
@@ -32,6 +37,11 @@ with open ('producao_alimentos.csv', 'r') as file:
   #Insere no BD as linhas com quantidade superior a 10
   for row in reader:
     if int(row[1]) > 10:
+
+      #Remove caractere "ponto" e converte em inteiro
+      row[3] = remove_ponto(row[3])
+
+      #Insere registro no BD
       conn.execute('INSERT INTO producao (produto, quantidade, preco_medio, receita_total) VALUES (?, ?, ?, ?)', row)
 
   conn.commit()
