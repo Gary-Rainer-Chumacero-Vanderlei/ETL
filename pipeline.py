@@ -10,7 +10,7 @@ import sqlite3
 
 #Remove caractere "ponto"
 def remove_ponto(valor):
-  return int(valor.replace('.', ''))
+  return int(round(float(valor.replace('.', '')), 0))
 
 #Abre arquivo CSV
 with open ('producao_alimentos.csv', 'r') as file:
@@ -44,7 +44,7 @@ with open ('producao_alimentos.csv', 'r') as file:
       row[3] = remove_ponto(row[3])
 
       #Calcula margem de lucro bruta: receita total dividido pela quantidade de produtos, menos preço medio
-      margem_lucro = (row[3] / float(row[1])) - float(row[2])
+      margem_lucro = round((row[3] / float(row[1])) - float(row[2]), 2)
 
       #Insere registro no BD
       conn.execute('INSERT INTO producao (produto, quantidade, preco_medio, receita_total, margem_lucro) VALUES (?, ?, ?, ?, ?)', (row[0], row[1], row[2], row[3], margem_lucro))
